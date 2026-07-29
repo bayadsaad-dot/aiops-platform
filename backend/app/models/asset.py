@@ -1,9 +1,9 @@
-import uuid
 from datetime import datetime
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.enums.asset import AssetType, AssetStatus
 from app.models.base_model import BaseEntity
 
 
@@ -28,8 +28,12 @@ class Asset(BaseEntity):
         nullable=False,
     )
 
-    asset_type: Mapped[str] = mapped_column(
-        String(50),
+    asset_type: Mapped[AssetType] = mapped_column(
+        Enum(
+             AssetType,
+             values_callable=lambda enum: [e.value for e in enum],
+             name="assettype",
+        ),
         nullable=False,
     )
 
@@ -58,9 +62,14 @@ class Asset(BaseEntity):
         nullable=True,
     )
 
-    status: Mapped[str] = mapped_column(
-        String(30),
-        default="Offline",
+    status: Mapped[AssetStatus] = mapped_column(
+         Enum(
+         AssetStatus,
+         values_callable=lambda enum: [e.value for e in enum],
+         name="assetstatus",
+       ),
+      default=AssetStatus.OFFLINE,
+     nullable=False,
     )
 
     last_seen: Mapped[datetime | None] = mapped_column(
