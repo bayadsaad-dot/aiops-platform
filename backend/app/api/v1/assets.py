@@ -7,7 +7,8 @@ from app.database.deps import get_db
 from app.services.asset_service import AssetService
 from math import ceil
 from fastapi import APIRouter, Depends, HTTPException, Query
-
+from app.schemas.asset_summary import AssetSummary
+from app.services.metric_service import MetricService
 from app.enums.asset import AssetType, AssetStatus
 from app.schemas.asset import (
     AssetCreate,
@@ -96,3 +97,16 @@ def delete_asset(
             status_code=404,
             detail=str(e),
         )
+@router.get(
+    "/{asset_id}/summary",
+    response_model=AssetSummary,
+    summary="Get Asset Summary",
+)
+def get_asset_summary(
+    asset_id: UUID,
+    db: Session = Depends(get_db),
+):
+    return MetricService.get_asset_summary(
+        db=db,
+        asset_id=asset_id,
+    )
