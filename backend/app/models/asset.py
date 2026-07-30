@@ -1,8 +1,7 @@
 from datetime import datetime
-
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, Enum
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy.orm import relationship
 from app.enums.asset import AssetType, AssetStatus
 from app.models.base_model import BaseEntity
 
@@ -75,4 +74,9 @@ class Asset(BaseEntity):
     last_seen: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+    metrics = relationship(
+        "Metric",
+        back_populates="asset",
+        cascade="all, delete-orphan",
     )
