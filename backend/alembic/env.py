@@ -10,6 +10,10 @@ from app.database.base import Base
 # Import models bach Alembic y3rfhom
 from app.models.role import Role
 from app.models.user import User
+from app.models.asset import Asset
+from app.models.metric import Metric
+from app.models.network_interface import NetworkInterface
+from app.models.network_metric import NetworkMetric
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

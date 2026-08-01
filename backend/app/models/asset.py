@@ -80,3 +80,15 @@ class Asset(BaseEntity):
         back_populates="asset",
         cascade="all, delete-orphan",
     )
+
+    network_interfaces = relationship(
+         "NetworkInterface",
+         back_populates="asset",
+         cascade="all, delete-orphan",
+    )
+
+    network_metrics = relationship(
+         "NetworkMetric",
+          back_populates="asset",
+          cascade="all, delete-orphan",
+    )
