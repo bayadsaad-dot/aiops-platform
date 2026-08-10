@@ -1,34 +1,28 @@
 # Python
 __pycache__/
-*.py[cod]
-*.pyo
-
-# Virtual environments
+*.pyc
 .venv/
-venv/
-backend/.venv/
-
-# Environment variables
 .env
-backend/.env
+
+# Node
+node_modules/
+dist/
 
 # VS Code
 .vscode/
 
-# Pytest
-.pytest_cache/
-
 # Logs
 *.log
-
-# Coverage
-.coverage
-htmlcov/
-
-# Build
-dist/
-build/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Python cache
+.pytest_cache/
+
+# Build
+build/
+
+# Docker
+*.pid
