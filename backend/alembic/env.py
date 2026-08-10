@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 from app.core.config import settings
 from app.database.base import Base
-
+from app.models.ai_analysis import AIAnalysis
 # Import models bach Alembic y3rfhom
 from app.models.role import Role
 from app.models.user import User
@@ -14,6 +14,10 @@ from app.models.asset import Asset
 from app.models.metric import Metric
 from app.models.network_interface import NetworkInterface
 from app.models.network_metric import NetworkMetric
+from app.models.alert import Alert
+from app.models.incident import Incident
+from app.models.website import Website
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

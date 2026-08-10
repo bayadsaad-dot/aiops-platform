@@ -3,6 +3,9 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, or_, func
 from app.models.asset import Asset
+from datetime import datetime, timedelta, timezone
+
+from app.enums.asset import AssetStatus
 
 
 class AssetRepository:
@@ -99,3 +102,42 @@ class AssetRepository:
         db.commit()
         db.refresh(asset)
         return asset
+
+    @staticmethod
+    def count(db):
+
+        return db.query(Asset).count()
+
+    @staticmethod
+    def count_online(db):
+
+        threshold = datetime.now(timezone.utc) - timedelta(minutes=2)
+
+        return (
+            db.query(Asset)
+            .filter(
+                Asset.last_seen.is_not(None),
+                Asset.last_seen >= threshold,
+                Asset.status == AssetStatus.ONLINE,
+            )
+            .count()
+        )
+
+    @staticmethod
+    def get_expired_heartbeats(
+        db: Session,
+        timeout_seconds: int = 5,
+    ):
+        threshold = (
+            datetime.now(timezone.utc)
+            - timedelta(seconds=timeout_seconds)
+        )
+
+        return (
+            db.query(Asset)
+            .filter(
+                Asset.last_seen < threshold,
+                Asset.status == AssetStatus.ONLINE,
+            )
+            .all()
+        )

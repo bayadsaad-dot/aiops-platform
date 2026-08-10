@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Session
+
 from app.models.network_metric import NetworkMetric
 
 from app.repositories.asset_repository import AssetRepository
@@ -12,7 +14,7 @@ from app.repositories.network_metric_repository import (
 class NetworkMetricService:
 
     @staticmethod
-    def create_metric(db, data):
+    def create_metric(db: Session, data):
 
         # Find Asset
         asset = AssetRepository.get_by_hostname(
@@ -53,7 +55,7 @@ class NetworkMetricService:
 
     @staticmethod
     def get_asset_metrics(
-        db,
+        db: Session,
         asset_id,
         page,
         size,
@@ -63,4 +65,26 @@ class NetworkMetricService:
             asset_id,
             page,
             size,
+        )
+
+    @staticmethod
+    def get_latest(
+        db: Session,
+        limit: int = 20,
+    ):
+        return NetworkMetricRepository.get_latest(
+            db=db,
+            limit=limit,
+        )
+
+    @staticmethod
+    def get_latest_by_asset(
+        db: Session,
+        asset_id,
+        limit: int = 20,
+    ):
+        return NetworkMetricRepository.get_latest_by_asset(
+            db=db,
+            asset_id=asset_id,
+            limit=limit,
         )

@@ -92,3 +92,20 @@ class Asset(BaseEntity):
           back_populates="asset",
           cascade="all, delete-orphan",
     )
+
+    alerts = relationship(
+         "Alert",
+         back_populates="asset",
+         cascade="all, delete-orphan",
+    )
+
+    processes = relationship(
+         "Process",
+          back_populates="asset",
+          cascade="all, delete-orphan",
+    )
+
+    incidents = relationship(
+       "Incident",
+        back_populates="asset",
+    )

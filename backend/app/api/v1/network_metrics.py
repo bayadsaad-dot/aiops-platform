@@ -4,11 +4,13 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.database.deps import get_db
+
 from app.schemas.network_metric import (
     NetworkMetricCreate,
     NetworkMetricRead,
     NetworkMetricListResponse,
 )
+
 from app.services.network_metric_service import (
     NetworkMetricService,
 )
@@ -19,6 +21,9 @@ router = APIRouter(
 )
 
 
+# -----------------------------
+# Create Network Metric
+# -----------------------------
 @router.post(
     "/",
     response_model=NetworkMetricRead,
@@ -29,27 +34,66 @@ def create_network_metric(
     db: Session = Depends(get_db),
 ):
     return NetworkMetricService.create_metric(
-        db,
-        metric,
+        db=db,
+        data=metric,
     )
 
 
+# -----------------------------
+# Latest Network Metrics
+# IMPORTANT:
+# This endpoint MUST be before /{asset_id}
+# -----------------------------
+@router.get(
+    "/latest",
+    response_model=NetworkMetricListResponse,
+)
+def get_latest_metrics(
+    limit: int = Query(
+        default=20,
+        ge=1,
+        le=200,
+    ),
+    db: Session = Depends(get_db),
+):
+    metrics = NetworkMetricService.get_latest(
+        db=db,
+        limit=limit,
+    )
+
+    return NetworkMetricListResponse(
+        items=metrics,
+        total=len(metrics),
+        page=1,
+        size=limit,
+    )
+
+
+# -----------------------------
+# Metrics By Asset
+# -----------------------------
 @router.get(
     "/{asset_id}",
     response_model=NetworkMetricListResponse,
 )
 def get_network_metrics(
     asset_id: UUID,
-    page: int = Query(1, ge=1),
-    size: int = Query(100, ge=1),
+    page: int = Query(
+        default=1,
+        ge=1,
+    ),
+    size: int = Query(
+        default=100,
+        ge=1,
+    ),
     db: Session = Depends(get_db),
 ):
     metrics, total = (
         NetworkMetricService.get_asset_metrics(
-            db,
-            asset_id,
-            page,
-            size,
+            db=db,
+            asset_id=asset_id,
+            page=page,
+            size=size,
         )
     )
 

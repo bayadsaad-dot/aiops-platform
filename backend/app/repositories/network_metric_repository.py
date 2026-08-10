@@ -65,3 +65,28 @@ class NetworkMetricRepository:
         )
 
         return metrics, total
+    @staticmethod
+    def get_latest(
+        db: Session,
+        limit: int = 20,
+    ):
+        return (
+            db.query(NetworkMetric)
+            .order_by(desc(NetworkMetric.created_at))
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
+    def get_latest_by_asset(
+        db: Session,
+        asset_id: UUID,
+        limit: int = 20,
+    ):
+        return (
+            db.query(NetworkMetric)
+            .filter(NetworkMetric.asset_id == asset_id)
+            .order_by(desc(NetworkMetric.created_at))
+            .limit(limit)
+            .all()
+        )

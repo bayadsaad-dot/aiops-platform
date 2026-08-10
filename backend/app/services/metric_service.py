@@ -1,25 +1,38 @@
 from uuid import UUID
-
-from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 
-from app.repositories.metric_stats_repository import MetricStatsRepository
-from app.schemas.asset_summary import AssetSummary
+from sqlalchemy.orm import Session
+
 from app.models.metric import Metric
+from app.schemas.metric import MetricCreate
+from app.schemas.asset_summary import AssetSummary
+
+from app.services.alert_engine import AlertEngine
+
 from app.repositories.asset_repository import AssetRepository
 from app.repositories.metric_repository import MetricRepository
-from app.schemas.metric import MetricCreate
+from app.repositories.metric_stats_repository import MetricStatsRepository
 
 
 class MetricService:
 
     @staticmethod
-    def create_metric(db: Session, metric_data: MetricCreate):
+    def create_metric(
+        db: Session,
+        metric_data: MetricCreate,
+    ):
 
-        asset = AssetRepository.get_by_hostname(db, metric_data.hostname)
+        # Find Asset
+        asset = AssetRepository.get_by_hostname(
+            db,
+            metric_data.hostname,
+        )
 
         if not asset:
-            asset = AssetRepository.get_by_ip(db, metric_data.ip_address)
+            asset = AssetRepository.get_by_ip(
+                db,
+                metric_data.ip_address,
+            )
 
         if not asset:
             raise ValueError(
@@ -27,6 +40,7 @@ class MetricService:
                 f"or IP '{metric_data.ip_address}'"
             )
 
+        # Create Metric object
         metric = Metric(
             hostname=metric_data.hostname,
             ip_address=metric_data.ip_address,
@@ -38,7 +52,20 @@ class MetricService:
             asset_id=asset.id,
         )
 
-        return MetricRepository.create(db, metric)
+        # Save metric
+        metric = MetricRepository.create(
+            db,
+            metric,
+        )
+
+        # Evaluate alerts
+        AlertEngine.evaluate_metric(
+            db=db,
+            asset=asset,
+            metric=metric,
+        )
+
+        return metric
 
     @staticmethod
     def get_asset_metrics(
@@ -55,6 +82,7 @@ class MetricService:
             size=size,
             period=period,
         )
+
     @staticmethod
     def get_asset_summary(
         db: Session,
@@ -62,8 +90,8 @@ class MetricService:
     ) -> AssetSummary:
 
         latest = MetricStatsRepository.get_latest_metric(
-             db=db,
-             asset_id=asset_id,
+            db=db,
+            asset_id=asset_id,
         )
 
         if latest is None:
@@ -78,7 +106,7 @@ class MetricService:
                 avg_memory_24h=None,
                 current_disk=None,
                 alerts=0,
-           )
+            )
 
         avg_cpu, max_cpu, min_cpu = (
             MetricStatsRepository.get_cpu_stats_24h(
@@ -95,7 +123,7 @@ class MetricService:
         )
 
         now = datetime.now(timezone.utc)
-        
+
         online = (
             now - latest.created_at
         ) < timedelta(minutes=2)

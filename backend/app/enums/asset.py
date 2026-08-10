@@ -15,3 +15,4 @@ class AssetStatus(str, Enum):
     OFFLINE = "Offline"
     MAINTENANCE = "Maintenance"
     UNKNOWN = "Unknown"
+
